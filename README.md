@@ -1,1 +1,4 @@
-# Recognition_system_for_block_posts
+# Recognition system for block posts
+Система розпізнавання автомобільних номерів українського зразка.
+Всі нестандартні випадки мають опрацьовуватись вручну.
+Для роботи функції роспізнавання номерів, має бути встановлено Tesseract та змінено шлях до tesseract.exe у класі car_license_plates_recognition.py
