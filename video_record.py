@@ -1,43 +1,42 @@
+import time
 import cv2
+import config
 
-# Відкриваємо відеострім з камери
-cap = cv2.VideoCapture(0)  # 0 - перша камера
 
-# Налаштування для запису відео
-fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Кодек для запису
-out = None
-is_recording = False
+def record_video(cap):
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = None
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
+    while True:
+        is_recording = config.global_var
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    # Показуємо відео з камери
-    cv2.imshow('Camera', frame)
-
-    # Якщо запис увімкнено, зберігаємо поточний кадр
-    if is_recording and out is not None:
-        out.write(frame)
-
-    # Чекаємо натискання клавіші
-    key = cv2.waitKey(1)
-    if key == ord('r'):  # Почати/зупинити запис натиснувши 'r'
+        # Записуємо кадр, якщо запис увімкнено
         if is_recording:
-            # Зупиняємо запис
-            is_recording = False
-            out.release()
-            print("Запис завершено.")
+            if out is None:
+                video_name = "car_" + time.strftime("%Y%m%d-%H%M") + ".avi"
+                # Ініціалізуємо об'єкт запису відео при першому запуску
+                out = cv2.VideoWriter(video_name, fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+                print("Start recording.")
+            out.write(frame)
         else:
-            # Починаємо запис
-            out = cv2.VideoWriter('output.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
-            is_recording = True
-            print("Запис розпочато.")
-    elif key == ord('q'):  # Вихід при натисканні 'q'
-        break
+            # Зупиняємо запис, якщо він був увімкнений
+            if out is not None:
+                time.sleep(15)
+                out.release()
+                out = None
+                print("Finish recording.")
 
-# Завершуємо роботу з камерою та закриваємо всі вікна
-cap.release()
-if out is not None:
-    out.release()
-cv2.destroyAllWindows()
+        # Завершення роботи при натисканні клавіші 'q'
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    # Завершуємо роботу з камерою та звільняємо ресурси
+    cap.release()
+    if out is not None:
+        out.release()
+    cv2.destroyAllWindows()
+
+
