@@ -3,6 +3,9 @@ import pytesseract
 import re
 import config
 
+# Вказуємо шлях до виконуваного файлу Tesseract (для Windows)
+pytesseract.pytesseract.tesseract_cmd = r'D:\Python\work\tools\tesseract.exe'
+
 # Регулярний вираз для українських номерів
 ukraine_plate_pattern = re.compile(r'[АВСЕНІКМОРТХ]{2}\s?\d{4}\s?[АВСЕНІКМОРТХ]{2}')
 
