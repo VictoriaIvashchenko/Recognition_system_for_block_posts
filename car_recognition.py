@@ -26,4 +26,3 @@ def detect_cars_from_video(cap):
         parameters.global_var = car_detected
 
     cap.release()
-

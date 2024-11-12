@@ -6,18 +6,20 @@ import re
 import parameters
 
 # Вказуємо шлях до виконуваного файлу Tesseract (для Windows)
-pytesseract.pytesseract.tesseract_cmd = r'D:\Python\work\tools\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r"D:\Python\work\tools\tesseract.exe"
 
 # Регулярний вираз для українських номерів
 ukraine_plate_pattern = r"^[ABCEHIKMOPTX01]{2}\s?\d{4}\s?[ABCEHIKMOPTX01]{2}$"
 
 
 def record_video(cap):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*"XVID")
     out = None
     plate_number = None
     video_name = None
-    stop_time = None  # Час, коли потрібно завершити запис після зміни is_recording на False
+    stop_time = (
+        None  # Час, коли потрібно завершити запис після зміни is_recording на False
+    )
 
     while True:
         is_recording = parameters.global_var
@@ -29,7 +31,9 @@ def record_video(cap):
         if is_recording:
             if out is None:
                 video_name = "car_" + time.strftime("%Y%m%d-%H%M") + ".avi"
-                out = cv2.VideoWriter(video_name, fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+                out = cv2.VideoWriter(
+                    video_name, fourcc, 20.0, (frame.shape[1], frame.shape[0])
+                )
                 # print("Start recording.")
             stop_time = None  # Скидаємо таймер завершення запису, якщо recording знову увімкнений
 
@@ -39,7 +43,9 @@ def record_video(cap):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             blurred = cv2.GaussianBlur(gray, (5, 5), 0)
             edged = cv2.Canny(blurred, 50, 200)
-            contours, _ = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(
+                edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+            )
             contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
 
             license_plate = None
@@ -56,9 +62,11 @@ def record_video(cap):
                 cv2.drawContours(mask, [license_plate], -1, 255, -1)
                 masked_image = cv2.bitwise_and(gray, gray, mask=mask)
                 (x, y, w, h) = cv2.boundingRect(license_plate)
-                cropped = masked_image[y:y + h, x:x + w]
+                cropped = masked_image[y : y + h, x : x + w]
                 config = "--psm 8 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-                plate_number = pytesseract.image_to_string(cropped, config=config).strip()
+                plate_number = pytesseract.image_to_string(
+                    cropped, config=config
+                ).strip()
 
                 if bool(re.match(ukraine_plate_pattern, plate_number)):
                     print("License plate:", plate_number)
@@ -80,6 +88,3 @@ def record_video(cap):
     if out is not None:
         out.release()
     cv2.destroyAllWindows()
-
-
-
